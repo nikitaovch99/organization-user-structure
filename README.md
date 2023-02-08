@@ -8,12 +8,15 @@ Implemented a REST API server using Node.js/Express/Sequalize/PostgreSQL/Jwt sta
 
 `/register` - accepts a post request with JSON body of { name, email, password, bossId },
 returns normalized data of created user.
+
 `/login` - accepts a get request with JSON body of { email, password },
 returns normalized user body and accessToken.
+
 `/users` - accepts a get request with an accessToken(Bearer Token),
 returns normalized array of users based on role of authorized user.
 Admin - sees every user, Boss sees himself and his subordinates,
 Regular - sees himself only.
+
 `/users/:userId` - accepts a patch request with an accesToken and action
 based on action changes role. changeBoss action accepts userId in params and 
 newBossId in request body. Returns normalized array of updated subordinate
@@ -21,6 +24,8 @@ and Boss. changeToAdmin action accepts userId in params. Returns normalized
 updated user.
 
 You can test this endpoints using Postman.
+If you want to login as admin use this data: 
+{ "email": "Admin@gmail.com", "password": "admin123" }
 
 ## Available Scripts
 
