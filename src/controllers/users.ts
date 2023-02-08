@@ -45,7 +45,8 @@ export const register = async (req: Request, res: Response) => {
   }
 
   if (boss.role === Role.Regular) {
-    await userService.update(boss.id, 'role', Role.Boss);
+    boss.role = Role.Boss;
+    await boss.save();
   }
 
   const createdUser = await userService.create(name, email, password, bossId);
@@ -101,10 +102,21 @@ export const changeBoss = async (req: Request, res: Response) => {
     return res.status(400).send('Error subordinate is already a Boss');
   }
 
-  await userService.update(newBoss.id, 'role', Role.Boss);
-  await userService.update(subordinate.bossId, 'bossId', newBoss.id);
+  const oldBoss = await userService.getById(subordinate.bossId);
+  if(!oldBoss) {
+    return res.status(404).send('OldBoss not found');
+  }
+  const oldBossSubordinates = await userService.getAll(oldBoss.id);
+
+  if (oldBossSubordinates.length < 2) {
+    oldBoss.role = Role.Regular;
+    await oldBoss.save();
+  }
+
   newBoss.role = Role.Boss;
   subordinate.bossId = newBoss.id;
+  await newBoss.save();
+  await subordinate.save();
 
   res.send([subordinate, newBoss].map(userService.normalize));
 };
@@ -124,7 +136,9 @@ export const changeRoleToAdmin = async (req: Request, res: Response) => {
     res.status(404).send('User not found');
     return;
   }
-  await userService.update(admin.id, 'role', Role.Administrator);
+
+  user.role = Role.Administrator;
+  await user.save();
 
   res.send(userService.normalize(user));
 };

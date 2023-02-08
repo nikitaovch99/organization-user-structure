@@ -1,8 +1,10 @@
 import jwt from 'jsonwebtoken';
 import { UserInterface } from '../model/user.js';
-import { v4 as uuidv4 } from 'uuid';
+import dotenv from 'dotenv';
 
-const jwtAccessSecret = uuidv4();
+dotenv.config();
+
+const jwtAccessSecret = process.env.JWT_SECRET || 'secret';
 function generateAccessToken(user: UserInterface) {
   return jwt.sign(JSON.stringify(user), jwtAccessSecret);
 }

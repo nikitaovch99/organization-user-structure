@@ -25,11 +25,6 @@ export function create(name, email, password, bossId) {
 export function findByEmail(email) {
     return User.findOne({ where: { email } });
 }
-export function update(id, name, value) {
-    return User.update({ [name]: value }, {
-        where: { id }
-    });
-}
 export function normalize({ id, name, email, bossId, role }) {
     return { id, name, email, bossId, role };
 }

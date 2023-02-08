@@ -1,6 +1,6 @@
 import { User, UserInterface } from '../model/user.js';
 
-export function getAll(userId = null) {
+export function getAll(userId: number | null = null) {
 
   if (userId) {
     return User.findAll({
@@ -32,13 +32,6 @@ export function create(name: string, email: string, password: string, bossId: nu
 
 export function findByEmail(email: number) {
   return User.findOne({ where: { email } });
-}
-
-
-export function update(id: number, name: string, value: any) {
-  return User.update({[name]: value}, {
-    where: {id}
-  });
 }
 
 export function normalize({id, name, email, bossId, role}: UserInterface) {

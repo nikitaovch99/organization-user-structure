@@ -42,7 +42,8 @@ export const register = (req, res) => __awaiter(void 0, void 0, void 0, function
         return res.status(404).send('Boss not found');
     }
     if (boss.role === Role.Regular) {
-        yield userService.update(boss.id, 'role', Role.Boss);
+        boss.role = Role.Boss;
+        yield boss.save();
     }
     const createdUser = yield userService.create(name, email, password, bossId);
     res.status(201).send(userService.normalize(createdUser));
@@ -84,10 +85,19 @@ export const changeBoss = (req, res) => __awaiter(void 0, void 0, void 0, functi
     if (subordinate.id === newBoss.bossId) {
         return res.status(400).send('Error subordinate is already a Boss');
     }
-    yield userService.update(newBoss.id, 'role', Role.Boss);
-    yield userService.update(subordinate.bossId, 'bossId', newBoss.id);
+    const oldBoss = yield userService.getById(subordinate.bossId);
+    if (!oldBoss) {
+        return res.status(404).send('OldBoss not found');
+    }
+    const oldBossSubordinates = yield userService.getAll(oldBoss.id);
+    if (oldBossSubordinates.length < 2) {
+        oldBoss.role = Role.Regular;
+        yield oldBoss.save();
+    }
     newBoss.role = Role.Boss;
     subordinate.bossId = newBoss.id;
+    yield newBoss.save();
+    yield subordinate.save();
     res.send([subordinate, newBoss].map(userService.normalize));
 });
 export const changeRoleToAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -102,6 +112,7 @@ export const changeRoleToAdmin = (req, res) => __awaiter(void 0, void 0, void 0,
         res.status(404).send('User not found');
         return;
     }
-    yield userService.update(admin.id, 'role', Role.Administrator);
+    user.role = Role.Administrator;
+    yield user.save();
     res.send(userService.normalize(user));
 });
